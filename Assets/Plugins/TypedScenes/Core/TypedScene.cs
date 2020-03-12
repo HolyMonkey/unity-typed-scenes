@@ -1,9 +1,8 @@
-﻿using UnityEngine;
-using UnityEngine.SceneManagement;
+﻿using UnityEngine.SceneManagement;
 
 namespace IJunior.TypedScene
 {
-    public class TypedScene : MonoBehaviour
+    public class TypedScene
     {
         protected const string _path = "";
 
