@@ -1,6 +1,7 @@
 ﻿using System.CodeDom;
 using System.CodeDom.Compiler;
 using System.IO;
+using System.Text;
 using UnityEditor;
 using UnityEngine;
 
@@ -14,7 +15,8 @@ namespace IJunior.TypedScene
 
         public static void Generate(string path)
         {
-            var className = Path.GetFileNameWithoutExtension(path);
+            var className = GetValidClassName(Path.GetFileNameWithoutExtension(path));
+
             var targetUnit = new CodeCompileUnit();
             var targetNamespace = new CodeNamespace(_namespace);
             var targetClass = new CodeTypeDeclaration(className);
@@ -33,7 +35,25 @@ namespace IJunior.TypedScene
 
             targetNamespace.Types.Add(targetClass);
             targetUnit.Namespaces.Add(targetNamespace);
+
             Save(className, targetUnit);
+        }
+
+        private static string GetValidClassName(string name)
+        {
+            var stringBuilder = new StringBuilder();
+
+            if (!char.IsLetter(name[0]))
+            {
+                stringBuilder.Append('_');
+            }
+
+            foreach(var symbol in name)
+            {
+                stringBuilder.Append(char.IsLetterOrDigit(symbol) ? symbol : '_');
+            }
+
+            return stringBuilder.ToString();
         }
 
         private static void Save(string name, CodeCompileUnit targetUnit)
@@ -48,6 +68,7 @@ namespace IJunior.TypedScene
             {
                 provider.GenerateCodeFromCompileUnit(targetUnit, sourceWriter, options);
             }
+
             AssetDatabase.ImportAsset(_savingDirectory + name + _classExtension, ImportAssetOptions.ForceUpdate);
         }
     } 

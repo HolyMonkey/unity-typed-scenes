@@ -14,6 +14,10 @@ namespace IJunior.TypedScene
             {
                 TestScene2.Load();
             }
+            if (Input.GetKeyDown(KeyCode.Alpha3))
+            {
+                New_Scene__23.Load();
+            }
         }
     } 
 }

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace IJunior.TypedScene
+﻿namespace IJunior.TypedScene
 {
     public class SceneCreationTrigger : UnityEditor.AssetModificationProcessor
     {
