@@ -1,6 +1,7 @@
 ﻿using System.CodeDom;
 using System.CodeDom.Compiler;
 using System.IO;
+using UnityEditor;
 using UnityEngine;
 
 namespace IJunior.TypedScene
@@ -8,7 +9,7 @@ namespace IJunior.TypedScene
     public class TypedSceneGenerator : MonoBehaviour
     {
         private const string _namespace = "IJunior.TypedScene";
-        private const string _savingDirectory = "Assets/Scenes/TypedScenes/";
+        private const string _savingDirectory = "Assets/Plugins/TypedScenes/Samples/";
         private const string _classExtension = ".cs";
 
         public static void Generate(string path)
@@ -20,9 +21,15 @@ namespace IJunior.TypedScene
             targetClass.BaseTypes.Add("TypedScene");
 
             var pathConstant = new CodeMemberField(typeof(string), "_path");
-            pathConstant.Attributes = MemberAttributes.New | MemberAttributes.Family | MemberAttributes.Const;
+            pathConstant.Attributes = MemberAttributes.Private | MemberAttributes.Const;
             pathConstant.InitExpression = new CodePrimitiveExpression(path);
             targetClass.Members.Add(pathConstant);
+
+            var loadMethod = new CodeMemberMethod();
+            loadMethod.Name = "Load";
+            loadMethod.Attributes = MemberAttributes.Public | MemberAttributes.Static;
+            loadMethod.Statements.Add(new CodeSnippetExpression("LoadScene(_path)"));
+            targetClass.Members.Add(loadMethod);
 
             targetNamespace.Types.Add(targetClass);
             targetUnit.Namespaces.Add(targetNamespace);
@@ -41,6 +48,7 @@ namespace IJunior.TypedScene
             {
                 provider.GenerateCodeFromCompileUnit(targetUnit, sourceWriter, options);
             }
+            AssetDatabase.ImportAsset(_savingDirectory + name + _classExtension, ImportAssetOptions.ForceUpdate);
         }
     } 
 }

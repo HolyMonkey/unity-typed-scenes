@@ -2,13 +2,11 @@
 
 namespace IJunior.TypedScene
 {
-    public class TypedScene
+    public abstract class TypedScene
     {
-        protected const string _path = "";
-
-        public void LoadScene()
+        protected static void LoadScene(string path)
         {
-            SceneManager.LoadScene(_path);
+            SceneManager.LoadScene(path);
         }
     }
 }
