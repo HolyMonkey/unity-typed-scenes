@@ -1,6 +1,6 @@
 using System;
 
-namespace IJunior.TypedScene
+namespace IJunior.TypedScenes
 {
 	interface ISceneLoadHandler<T>
     {
