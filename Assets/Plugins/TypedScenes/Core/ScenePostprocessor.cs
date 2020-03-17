@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System.IO;
+using UnityEditor;
 using UnityEngine;
 
 namespace IJunior.TypedScene
@@ -19,7 +20,7 @@ namespace IJunior.TypedScene
             foreach (string assetPath in importedAssets)
             {
                 if (assetPath.Contains(SceneExtension))
-                    Debug.Log("Добавлена сцена по пути " + assetPath);
+                    Debug.Log("Сцена добавлена");
             }
         }
 
@@ -28,7 +29,7 @@ namespace IJunior.TypedScene
             foreach (string assetPath in deletedAssets)
             {
                 if (assetPath.Contains(SceneExtension))
-                    Debug.Log("Сцена по пути " + assetPath + " удалена");
+                    Debug.Log("Сцена удалена");
             }
         }
 
@@ -37,7 +38,14 @@ namespace IJunior.TypedScene
             for (var i = 0; i < movedFromAssetPaths.Length; i++)
             {
                 if (movedFromAssetPaths[i].Contains(SceneExtension))
-                    Debug.Log("Сцена по пути " + movedFromAssetPaths[i] + " перемещена в " + movedAssets[i]);
+                {
+                    if (Path.GetFileNameWithoutExtension(movedFromAssetPaths[i]) != Path.GetFileNameWithoutExtension(movedAssets[i]))
+                    {
+                        Debug.Log("Сцена переименована");
+                        return;
+                    }
+                    Debug.Log("Сцена перемещена");
+                }
             }
         }
     } 
