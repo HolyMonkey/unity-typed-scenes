@@ -1,6 +1,7 @@
 ﻿namespace IJunior.TypedScene
 {
     using UnityEditor;
+    using UnityEngine;
 
     public class SceneCreationTrigger : AssetModificationProcessor
     {
@@ -11,8 +12,10 @@
         {
             assetName = assetName.Replace(MetaExtension, "");
 
-            if (assetName.Contains(SceneExtension))
-                TypedSceneGenerator.Generate(assetName);
+            //if (assetName.Contains(SceneExtension))
+                //TypedSceneGenerator.Generate(assetName);
         }
     }
+
+
 }
