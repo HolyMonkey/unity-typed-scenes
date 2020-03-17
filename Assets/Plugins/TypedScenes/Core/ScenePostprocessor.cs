@@ -20,7 +20,7 @@ namespace IJunior.TypedScene
             foreach (string assetPath in importedAssets)
             {
                 if (assetPath.Contains(SceneExtension))
-                    Debug.Log("Сцена добавлена");
+                    TypedSceneManager.Generate(assetPath);
             }
         }
 
@@ -29,7 +29,10 @@ namespace IJunior.TypedScene
             foreach (string assetPath in deletedAssets)
             {
                 if (assetPath.Contains(SceneExtension))
-                    Debug.Log("Сцена удалена");
+                {
+                    var sceneName = Path.GetFileNameWithoutExtension(assetPath);
+                    TypedSceneManager.Delete(sceneName);
+                }
             }
         }
 
@@ -39,12 +42,13 @@ namespace IJunior.TypedScene
             {
                 if (movedFromAssetPaths[i].Contains(SceneExtension))
                 {
-                    if (Path.GetFileNameWithoutExtension(movedFromAssetPaths[i]) != Path.GetFileNameWithoutExtension(movedAssets[i]))
-                    {
-                        Debug.Log("Сцена переименована");
+                    var oldName = Path.GetFileNameWithoutExtension(movedFromAssetPaths[i]);
+                    TypedSceneManager.Delete(oldName);
+
+                    if (oldName != Path.GetFileNameWithoutExtension(movedAssets[i]))
                         return;
-                    }
-                    Debug.Log("Сцена перемещена");
+
+                    TypedSceneManager.Generate(movedAssets[i]);
                 }
             }
         }
