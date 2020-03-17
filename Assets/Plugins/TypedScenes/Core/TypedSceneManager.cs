@@ -12,10 +12,21 @@ namespace IJunior.TypedScene
         private const string Namespace = "IJunior.TypedScene";
         private const string SavingDirectory = "Assets/Scenes/Typed/";
         private const string ClassExtension = ".cs";
+        private const string SceneExtension = ".unity";
 
         public static void Generate(string path)
         {
             var className = GetValidClassName(Path.GetFileNameWithoutExtension(path));
+
+            if (AlreadyExists(className))
+            {
+                Debug.LogError("A scene with the same name already exists. Scene and Typed Scene renamed");
+
+                var directory = Path.GetDirectoryName(path);
+                var newSceneName = className + GetAccessiblePostfix(className);
+                File.Move(path, directory + "/" + newSceneName + SceneExtension);
+                path = directory + "/" + newSceneName + SceneExtension;
+            }
 
             var targetUnit = new CodeCompileUnit();
             var targetNamespace = new CodeNamespace(Namespace);
@@ -80,6 +91,22 @@ namespace IJunior.TypedScene
             }
 
             AssetDatabase.ImportAsset(SavingDirectory + name + ClassExtension, ImportAssetOptions.ForceUpdate);
+        }
+
+        private static bool AlreadyExists(string className)
+        {
+            var path = SavingDirectory + className + ClassExtension;
+            return File.Exists(path);
+        }
+
+        private static string GetAccessiblePostfix(string className)
+        {
+            var number = 0;
+
+            while (AlreadyExists(className + number))
+                number++;
+
+            return number.ToString();
         }
     } 
 }
