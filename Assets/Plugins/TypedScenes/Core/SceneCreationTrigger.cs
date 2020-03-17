@@ -1,17 +1,18 @@
 ﻿namespace IJunior.TypedScene
 {
-    public class SceneCreationTrigger : UnityEditor.AssetModificationProcessor
+    using UnityEditor;
+
+    public class SceneCreationTrigger : AssetModificationProcessor
     {
-        private const string _sceneExtension = ".unity";
-        private const string _metaExtension = ".meta";
+        private const string SceneExtension = ".unity";
+        private const string MetaExtension = ".meta";
 
         private static void OnWillCreateAsset(string assetName)
         {
-            assetName = assetName.Replace(_metaExtension, "");
-            if (assetName.Contains(_sceneExtension))
-            {
+            assetName = assetName.Replace(MetaExtension, "");
+
+            if (assetName.Contains(SceneExtension))
                 TypedSceneGenerator.Generate(assetName);
-            }
         }
-    } 
+    }
 }
