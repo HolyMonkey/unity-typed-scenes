@@ -9,11 +9,6 @@ namespace IJunior.TypedScene
 {
     public class TypedSceneManager : MonoBehaviour
     {
-        private const string Namespace = "IJunior.TypedScene";
-        private const string SavingDirectory = "Assets/Scenes/Typed/";
-        private const string ClassExtension = ".cs";
-        private const string SceneExtension = ".unity";
-
         public static void Generate(string path)
         {
             var className = GetValidClassName(Path.GetFileNameWithoutExtension(path));
@@ -24,12 +19,12 @@ namespace IJunior.TypedScene
 
                 var directory = Path.GetDirectoryName(path);
                 var newSceneName = className + GetAccessiblePostfix(className);
-                File.Move(path, directory + "/" + newSceneName + SceneExtension);
-                path = directory + "/" + newSceneName + SceneExtension;
+                File.Move(path, directory + "/" + newSceneName + TypedSceneSettings.SceneExtension);
+                path = directory + "/" + newSceneName + TypedSceneSettings.SceneExtension;
             }
 
             var targetUnit = new CodeCompileUnit();
-            var targetNamespace = new CodeNamespace(Namespace);
+            var targetNamespace = new CodeNamespace(TypedSceneSettings.Namespace);
             var targetClass = new CodeTypeDeclaration(className);
             targetClass.BaseTypes.Add("TypedScene");
 
@@ -53,7 +48,7 @@ namespace IJunior.TypedScene
         public static void Delete(string sceneName)
         {
             var className = GetValidClassName(sceneName);
-            var path = SavingDirectory + className + ClassExtension;
+            var path = TypedSceneSettings.SavingDirectory + className + TypedSceneSettings.ClassExtension;
 
             if (File.Exists(path))
             {
@@ -83,19 +78,19 @@ namespace IJunior.TypedScene
             var options = new CodeGeneratorOptions();
             options.BracingStyle = "C";
 
-            Directory.CreateDirectory(SavingDirectory);
+            Directory.CreateDirectory(TypedSceneSettings.SavingDirectory);
 
-            using (StreamWriter sourceWriter = new StreamWriter(SavingDirectory + name + ClassExtension))
+            using (StreamWriter sourceWriter = new StreamWriter(TypedSceneSettings.SavingDirectory + name + TypedSceneSettings.ClassExtension))
             {
                 provider.GenerateCodeFromCompileUnit(targetUnit, sourceWriter, options);
             }
 
-            AssetDatabase.ImportAsset(SavingDirectory + name + ClassExtension, ImportAssetOptions.ForceUpdate);
+            AssetDatabase.ImportAsset(TypedSceneSettings.SavingDirectory + name + TypedSceneSettings.ClassExtension, ImportAssetOptions.ForceUpdate);
         }
 
         private static bool AlreadyExists(string className)
         {
-            var path = SavingDirectory + className + ClassExtension;
+            var path = TypedSceneSettings.SavingDirectory + className + TypedSceneSettings.ClassExtension;
             return File.Exists(path);
         }
 

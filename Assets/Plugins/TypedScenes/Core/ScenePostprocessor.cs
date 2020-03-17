@@ -1,13 +1,10 @@
 ﻿using System.IO;
 using UnityEditor;
-using UnityEngine;
 
 namespace IJunior.TypedScene
 {
     public class ScenePostprocessor : AssetPostprocessor
     {
-        private const string SceneExtension = ".unity";
-
         private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
         {
             DetectSceneCreation(importedAssets);
@@ -19,7 +16,7 @@ namespace IJunior.TypedScene
         {
             foreach (string assetPath in importedAssets)
             {
-                if (assetPath.Contains(SceneExtension))
+                if (assetPath.Contains(TypedSceneSettings.SceneExtension))
                     TypedSceneManager.Generate(assetPath);
             }
         }
@@ -28,7 +25,7 @@ namespace IJunior.TypedScene
         {
             foreach (string assetPath in deletedAssets)
             {
-                if (assetPath.Contains(SceneExtension))
+                if (assetPath.Contains(TypedSceneSettings.SceneExtension))
                 {
                     var sceneName = Path.GetFileNameWithoutExtension(assetPath);
                     TypedSceneManager.Delete(sceneName);
@@ -40,7 +37,7 @@ namespace IJunior.TypedScene
         {
             for (var i = 0; i < movedFromAssetPaths.Length; i++)
             {
-                if (movedFromAssetPaths[i].Contains(SceneExtension))
+                if (movedFromAssetPaths[i].Contains(TypedSceneSettings.SceneExtension))
                 {
                     var oldName = Path.GetFileNameWithoutExtension(movedFromAssetPaths[i]);
                     TypedSceneManager.Delete(oldName);
