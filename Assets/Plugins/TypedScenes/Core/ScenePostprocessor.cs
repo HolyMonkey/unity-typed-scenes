@@ -16,8 +16,12 @@ namespace IJunior.TypedScene
         {
             foreach (string assetPath in importedAssets)
             {
-                if (assetPath.Contains(TypedSceneSettings.SceneExtension))
-                    TypedSceneManager.Generate(assetPath);
+                if (Path.GetExtension(assetPath) == TypedSceneSettings.SceneExtension
+                    && TypedSceneValidator.ValidateNewScene(assetPath, out var className, out var GUID))
+                {
+                    var sourceCode = TypedSceneGenerator.Generate(className, GUID);
+                    TypedSceneStorage.Save(className, sourceCode);
+                }
             }
         }
 
@@ -25,10 +29,10 @@ namespace IJunior.TypedScene
         {
             foreach (string assetPath in deletedAssets)
             {
-                if (assetPath.Contains(TypedSceneSettings.SceneExtension))
+                if (Path.GetExtension(assetPath) == TypedSceneSettings.SceneExtension)
                 {
-                    var sceneName = Path.GetFileNameWithoutExtension(assetPath);
-                    TypedSceneManager.Delete(sceneName);
+                    var className = TypedSceneValidator.GetValidName(Path.GetFileNameWithoutExtension(assetPath));
+                    TypedSceneStorage.Delete(className);
                 }
             }
         }
@@ -37,17 +41,21 @@ namespace IJunior.TypedScene
         {
             for (var i = 0; i < movedFromAssetPaths.Length; i++)
             {
-                if (movedFromAssetPaths[i].Contains(TypedSceneSettings.SceneExtension))
+                if (Path.GetExtension(movedFromAssetPaths[i]) == TypedSceneSettings.SceneExtension)
                 {
-                    var oldName = Path.GetFileNameWithoutExtension(movedFromAssetPaths[i]);
-                    TypedSceneManager.Delete(oldName);
+                    var oldClassName = Path.GetFileNameWithoutExtension(movedFromAssetPaths[i]);
+                    TypedSceneStorage.Delete(oldClassName);
 
-                    if (oldName != Path.GetFileNameWithoutExtension(movedAssets[i]))
-                        return;
+                    if (oldClassName != Path.GetFileNameWithoutExtension(movedAssets[i])
+                        && TypedSceneValidator.ValidateNewScene(movedAssets[i], out var className, out var GUID))
+                    {
+                        var sourceCode = TypedSceneGenerator.Generate(className, GUID);
+                        TypedSceneStorage.Save(className, sourceCode);
+                    }
 
-                    TypedSceneManager.Generate(movedAssets[i]);
+                    //TypedSceneManager.Generate(movedAssets[i]);
                 }
             }
         }
-    } 
+    }
 }
