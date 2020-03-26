@@ -17,10 +17,12 @@ namespace IJunior.TypedScene
             foreach (string assetPath in importedAssets)
             {
                 if (Path.GetExtension(assetPath) == TypedSceneSettings.SceneExtension
-                    && TypedSceneValidator.ValidateNewScene(assetPath, out var className, out var GUID))
+                    && TypedSceneValidator.ValidateNewScene(assetPath))
                 {
-                    var sourceCode = TypedSceneGenerator.Generate(className, GUID);
-                    TypedSceneStorage.Save(className, sourceCode);
+                    var name = Path.GetFileNameWithoutExtension(assetPath);
+                    var guid = AssetDatabase.AssetPathToGUID(assetPath);
+                    var sourceCode = TypedSceneGenerator.Generate(name, guid);
+                    TypedSceneStorage.Save(name, sourceCode);
                 }
             }
         }
@@ -30,10 +32,7 @@ namespace IJunior.TypedScene
             foreach (string assetPath in deletedAssets)
             {
                 if (Path.GetExtension(assetPath) == TypedSceneSettings.SceneExtension)
-                {
-                    var className = TypedSceneValidator.GetValidName(Path.GetFileNameWithoutExtension(assetPath));
-                    TypedSceneStorage.Delete(className);
-                }
+                    TypedSceneStorage.Delete(Path.GetFileNameWithoutExtension(assetPath));
             }
         }
 
@@ -43,17 +42,11 @@ namespace IJunior.TypedScene
             {
                 if (Path.GetExtension(movedFromAssetPaths[i]) == TypedSceneSettings.SceneExtension)
                 {
-                    var oldClassName = Path.GetFileNameWithoutExtension(movedFromAssetPaths[i]);
-                    TypedSceneStorage.Delete(oldClassName);
+                    var oldName = Path.GetFileNameWithoutExtension(movedFromAssetPaths[i]);
+                    var newName = Path.GetFileNameWithoutExtension(movedAssets[i]);
 
-                    if (oldClassName != Path.GetFileNameWithoutExtension(movedAssets[i])
-                        && TypedSceneValidator.ValidateNewScene(movedAssets[i], out var className, out var GUID))
-                    {
-                        var sourceCode = TypedSceneGenerator.Generate(className, GUID);
-                        TypedSceneStorage.Save(className, sourceCode);
-                    }
-
-                    //TypedSceneManager.Generate(movedAssets[i]);
+                    if (oldName != newName)
+                        TypedSceneStorage.Delete(oldName);
                 }
             }
         }

@@ -7,36 +7,30 @@ namespace IJunior.TypedScene
 {
     public class TypedSceneValidator
     {
-        public static bool ValidateNewScene(string scenePath, out string className, out string GUID)
+        public static bool ValidateNewScene(string scenePath)
         {
-            className = "";
-            GUID = "";
+            var name = Path.GetFileNameWithoutExtension(scenePath);
+            var validName = GetUniqueSceneName(GetValidName(name));
 
-            var sceneName = Path.GetFileNameWithoutExtension(scenePath);
-            var validName = GetUniqueSceneName(GetValidName(sceneName));
-
-            if (sceneName != validName)
+            if (name != validName)
             {
                 AssetDatabase.RenameAsset(scenePath, validName);
                 return false;
             }
 
-            className = validName;
-            GUID = AssetDatabase.AssetPathToGUID(scenePath);
-
             return true;
         }
 
-        public static string GetValidName(string sceneName)
+        private static string GetValidName(string sceneName)
         {
             var stringBuilder = new StringBuilder();
 
-            if (!char.IsLetter(sceneName[0]))
+            if (!char.IsLetter(sceneName[0]) && sceneName[0] != '_')
                 stringBuilder.Append('_');
 
             foreach (var symbol in sceneName)
             {
-                stringBuilder.Append(char.IsLetterOrDigit(symbol) ? symbol : '_');
+                stringBuilder.Append((char.IsLetterOrDigit(symbol) || symbol == '_') ? symbol : '_');
             }
 
             return stringBuilder.ToString();
@@ -55,5 +49,5 @@ namespace IJunior.TypedScene
 
             return sceneName;
         }
-    } 
+    }
 }

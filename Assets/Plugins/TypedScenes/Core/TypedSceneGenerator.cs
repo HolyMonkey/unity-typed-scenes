@@ -36,5 +36,5 @@ namespace IJunior.TypedScene
 
             return code.ToString();
         }
-    } 
+    }
 }
