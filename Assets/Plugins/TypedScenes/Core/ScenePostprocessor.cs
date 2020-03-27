@@ -31,7 +31,8 @@ namespace IJunior.TypedScene
         {
             foreach (string assetPath in deletedAssets)
             {
-                if (Path.GetExtension(assetPath) == TypedSceneSettings.SceneExtension)
+                if (Path.GetExtension(assetPath) == TypedSceneSettings.SceneExtension
+                    && !TypedSceneValidator.SameNameExists(Path.GetFileNameWithoutExtension(assetPath)))
                     TypedSceneStorage.Delete(Path.GetFileNameWithoutExtension(assetPath));
             }
         }

@@ -26,6 +26,25 @@ namespace IJunior.TypedScene
             return true;
         }
 
+        public static bool SameNameExists(string sceneName)
+        {
+            var assets = AssetDatabase.FindAssets(sceneName);
+
+            foreach(var asset in assets)
+            {
+                var path = AssetDatabase.GUIDToAssetPath(asset);
+                var name = Path.GetFileNameWithoutExtension(path);
+
+                if (name != sceneName)
+                    continue;
+
+                if (Path.GetExtension(path) == TypedSceneSettings.SceneExtension)
+                    return true;
+            }
+
+            return false;
+        }
+
         private static string GetValidName(string sceneName)
         {
             var stringBuilder = new StringBuilder();

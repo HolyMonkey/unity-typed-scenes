@@ -11,7 +11,6 @@ namespace IJunior.TypedScene
             Directory.CreateDirectory(TypedSceneSettings.SavingDirectory);
             File.WriteAllText(path, sourceCode);
             AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
-            
         }
 
         public static void Delete(string className)
