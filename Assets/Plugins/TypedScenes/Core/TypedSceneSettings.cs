@@ -7,5 +7,6 @@
         public const string SavingDirectory = "Assets/Scenes/Typed/";
         public const string ClassExtension = ".cs";
         public const string SceneExtension = ".unity";
+        public const string MetaExtension = ".meta";
     } 
 }

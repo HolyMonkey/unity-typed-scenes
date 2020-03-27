@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using UnityEditor;
 
@@ -10,11 +12,14 @@ namespace IJunior.TypedScene
         public static bool ValidateNewScene(string scenePath)
         {
             var name = Path.GetFileNameWithoutExtension(scenePath);
-            var validName = GetUniqueSceneName(GetValidName(name));
+            var validName = GetUniqueName(GetValidName(name));
 
             if (name != validName)
             {
-                AssetDatabase.RenameAsset(scenePath, validName);
+                var validPath = Path.GetDirectoryName(scenePath) + Path.DirectorySeparatorChar + validName + TypedSceneSettings.SceneExtension;
+                File.Move(scenePath, validPath);
+                File.Delete(scenePath + TypedSceneSettings.MetaExtension);
+                AssetDatabase.ImportAsset(validPath, ImportAssetOptions.ForceUpdate);
                 return false;
             }
 
@@ -36,18 +41,34 @@ namespace IJunior.TypedScene
             return stringBuilder.ToString();
         }
 
-        private static string GetUniqueSceneName(string sceneName)
+        private static string GetUniqueName(string sceneName)
         {
+            var derivedClasses = GetDerivedClasses();
+
             var postfix = "";
             var count = 0;
 
-            while (Type.GetType(sceneName + postfix) != null)
+            while (derivedClasses.Where(type => type.Name == sceneName + postfix).ToArray().Length > 0)
             {
                 count++;
                 postfix = count.ToString();
             }
 
-            return sceneName;
+            return sceneName + postfix;
+        }
+
+        private static IEnumerable<Type> GetDerivedClasses()
+        {
+            var derivedClasses = new List<Type>();
+            foreach (var domainAssembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                var assemblyTypes = domainAssembly.GetTypes()
+                  .Where(type => type.IsSubclassOf(Type.GetType(TypedSceneSettings.Namespace + "." + TypedSceneSettings.BaseClass)) && !type.IsAbstract);
+
+                derivedClasses.AddRange(assemblyTypes);
+            }
+
+            return derivedClasses;
         }
     }
 }
