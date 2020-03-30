@@ -2,7 +2,7 @@
 using System.CodeDom.Compiler;
 using System.IO;
 
-namespace IJunior.TypedScene
+namespace IJunior.TypedScenes
 {
     public class TypedSceneGenerator
     {

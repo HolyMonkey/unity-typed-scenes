@@ -1,15 +1,15 @@
 ﻿using System.IO;
 using UnityEditor;
 
-namespace IJunior.TypedScene
+namespace IJunior.TypedScenes
 {
     public class ScenePostprocessor : AssetPostprocessor
     {
         private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
         {
-            DetectSceneCreation(importedAssets);
-            DetectSceneDeletion(deletedAssets);
-            DetectSceneMovement(movedAssets, movedFromAssetPaths);
+            //DetectSceneCreation(importedAssets);
+            //DetectSceneDeletion(deletedAssets);
+            //DetectSceneMovement(movedAssets, movedFromAssetPaths);
         }
 
         private static void DetectSceneCreation(string[] importedAssets)

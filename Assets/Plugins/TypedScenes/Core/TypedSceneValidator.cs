@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using UnityEditor;
 
-namespace IJunior.TypedScene
+namespace IJunior.TypedScenes
 {
     public class TypedSceneValidator
     {

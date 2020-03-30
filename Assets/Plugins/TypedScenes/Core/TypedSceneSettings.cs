@@ -1,4 +1,4 @@
-﻿namespace IJunior.TypedScene
+﻿namespace IJunior.TypedScenes
 {
     public static class TypedSceneSettings
     {
