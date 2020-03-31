@@ -1,8 +1,6 @@
 ﻿using System;
 using System.CodeDom;
 using System.CodeDom.Compiler;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 
 namespace IJunior.TypedScenes
@@ -16,12 +14,8 @@ namespace IJunior.TypedScenes
             var targetClass = new CodeTypeDeclaration(className);
             targetClass.BaseTypes.Add("TypedScene");
 
-            var pathConstant = new CodeMemberField(typeof(string), "GUID");
-            pathConstant.Attributes = MemberAttributes.Private | MemberAttributes.Const;
-            pathConstant.InitExpression = new CodePrimitiveExpression(GUID);
-            targetClass.Members.Add(pathConstant);
+            AddConstantValue(targetClass, typeof(string), "GUID", GUID);
 
-            AddLoadingMethod(targetClass);
             var loadingParameters = SceneAnalyzer.GetLoadingParameters(GUID);
             foreach (var loadingParameter in loadingParameters)
             {
@@ -39,6 +33,14 @@ namespace IJunior.TypedScenes
             provider.GenerateCodeFromCompileUnit(targetUnit, code, options);
 
             return code.ToString();
+        }
+
+        private static void AddConstantValue(CodeTypeDeclaration targetClass, Type type, string name, string value)
+        {
+            var pathConstant = new CodeMemberField(type, name);
+            pathConstant.Attributes = MemberAttributes.Private | MemberAttributes.Const;
+            pathConstant.InitExpression = new CodePrimitiveExpression(value);
+            targetClass.Members.Add(pathConstant);
         }
 
         private static void AddLoadingMethod(CodeTypeDeclaration targetClass, Type parameterType = null)

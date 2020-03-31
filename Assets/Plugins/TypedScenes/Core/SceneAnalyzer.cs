@@ -10,12 +10,15 @@ namespace IJunior.TypedScenes
 {
     public class SceneAnalyzer
     {
-        public static IEnumerable<Type> GetLoadingParameters(string sceneGUID)
+        public static IEnumerable<Type> GetLoadingParameters(string sceneGUID, bool includeNullParameter = true)
         {
             var currentScene = SceneManager.GetActiveScene().path;
             var path = AssetDatabase.GUIDToAssetPath(sceneGUID);
             var rootObjects = EditorSceneManager.OpenScene(path).GetRootGameObjects();
             var loadParameters = new HashSet<Type>();
+
+            if (includeNullParameter)
+                loadParameters.Add(null);
 
             foreach (var gameObject in rootObjects)
             {
@@ -32,11 +35,6 @@ namespace IJunior.TypedScenes
                         }
                     }
                 }
-            }
-
-            foreach (var parameter in loadParameters)
-            {
-                Debug.Log(parameter.Name);
             }
 
             EditorSceneManager.OpenScene(currentScene);
