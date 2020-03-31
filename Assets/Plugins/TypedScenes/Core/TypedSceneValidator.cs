@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Text;
 using UnityEditor;
 
@@ -9,10 +6,10 @@ namespace IJunior.TypedScenes
 {
     public class TypedSceneValidator
     {
-        public static bool ValidateNewScene(string scenePath)
+        public static bool ValidateSceneImport(string scenePath)
         {
             var name = Path.GetFileNameWithoutExtension(scenePath);
-            var validName = GetUniqueName(GetValidName(name));
+            var validName = GetValidName(name);
 
             if (name != validName)
             {
@@ -58,36 +55,6 @@ namespace IJunior.TypedScenes
             }
 
             return stringBuilder.ToString();
-        }
-
-        private static string GetUniqueName(string sceneName)
-        {
-            var derivedClasses = GetDerivedClasses();
-
-            var postfix = "";
-            var count = 0;
-
-            while (derivedClasses.Where(type => type.Name == sceneName + postfix).ToArray().Length > 0)
-            {
-                count++;
-                postfix = count.ToString();
-            }
-
-            return sceneName + postfix;
-        }
-
-        private static IEnumerable<Type> GetDerivedClasses()
-        {
-            var derivedClasses = new List<Type>();
-            foreach (var domainAssembly in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                var assemblyTypes = domainAssembly.GetTypes()
-                  .Where(type => type.IsSubclassOf(Type.GetType(TypedSceneSettings.Namespace + "." + TypedSceneSettings.BaseClass)) && !type.IsAbstract);
-
-                derivedClasses.AddRange(assemblyTypes);
-            }
-
-            return derivedClasses;
         }
     }
 }

@@ -12,9 +12,13 @@ namespace IJunior.TypedScenes
     {
         public static IEnumerable<Type> GetLoadingParameters(string sceneGUID, bool includeNullParameter = true)
         {
-            var currentScene = SceneManager.GetActiveScene().path;
             var path = AssetDatabase.GUIDToAssetPath(sceneGUID);
-            var rootObjects = EditorSceneManager.OpenScene(path).GetRootGameObjects();
+            var currentScenePath = SceneManager.GetActiveScene().path;
+
+            if (path != currentScenePath)
+                EditorSceneManager.OpenScene(path);
+
+            var rootObjects = SceneManager.GetActiveScene().GetRootGameObjects();
             var loadParameters = new HashSet<Type>();
 
             if (includeNullParameter)
@@ -37,7 +41,6 @@ namespace IJunior.TypedScenes
                 }
             }
 
-            EditorSceneManager.OpenScene(currentScene);
             return loadParameters;
         }
     } 
