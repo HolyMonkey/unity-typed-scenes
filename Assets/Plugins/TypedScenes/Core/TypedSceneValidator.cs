@@ -26,7 +26,7 @@ namespace IJunior.TypedScenes
             return true;
         }
 
-        public static bool SameNameExists(string sceneName)
+        public static bool ValidateSceneDeletion(string sceneName)
         {
             var assets = AssetDatabase.FindAssets(sceneName);
 

@@ -2,7 +2,7 @@
 {
     public static class TypedSceneSettings
     {
-        public const string Namespace = "IJunior.TypedScene";
+        public const string Namespace = "IJunior.TypedScenes";
         public const string BaseClass = "TypedScene";
         public const string SavingDirectory = "Assets/Scenes/Typed/";
         public const string ClassExtension = ".cs";

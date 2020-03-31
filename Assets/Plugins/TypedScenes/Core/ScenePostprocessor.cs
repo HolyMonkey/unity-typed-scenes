@@ -7,7 +7,7 @@ namespace IJunior.TypedScenes
     {
         private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
         {
-            //DetectSceneCreation(importedAssets);
+            DetectSceneCreation(importedAssets);
             //DetectSceneDeletion(deletedAssets);
             //DetectSceneMovement(movedAssets, movedFromAssetPaths);
         }
@@ -32,7 +32,7 @@ namespace IJunior.TypedScenes
             foreach (string assetPath in deletedAssets)
             {
                 if (Path.GetExtension(assetPath) == TypedSceneSettings.SceneExtension
-                    && !TypedSceneValidator.SameNameExists(Path.GetFileNameWithoutExtension(assetPath)))
+                    && !TypedSceneValidator.ValidateSceneDeletion(Path.GetFileNameWithoutExtension(assetPath)))
                     TypedSceneStorage.Delete(Path.GetFileNameWithoutExtension(assetPath));
             }
         }

@@ -1,5 +1,8 @@
-﻿using System.CodeDom;
+﻿using System;
+using System.CodeDom;
 using System.CodeDom.Compiler;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 
 namespace IJunior.TypedScenes
@@ -18,11 +21,12 @@ namespace IJunior.TypedScenes
             pathConstant.InitExpression = new CodePrimitiveExpression(GUID);
             targetClass.Members.Add(pathConstant);
 
-            var loadMethod = new CodeMemberMethod();
-            loadMethod.Name = "Load";
-            loadMethod.Attributes = MemberAttributes.Public | MemberAttributes.Static;
-            loadMethod.Statements.Add(new CodeSnippetExpression("LoadScene(GUID)"));
-            targetClass.Members.Add(loadMethod);
+            AddLoadingMethod(targetClass);
+            var loadingParameters = SceneAnalyzer.GetLoadingParameters(GUID);
+            foreach (var loadingParameter in loadingParameters)
+            {
+                AddLoadingMethod(targetClass, loadingParameter);
+            }
 
             targetNamespace.Types.Add(targetClass);
             targetUnit.Namespaces.Add(targetNamespace);
@@ -35,6 +39,20 @@ namespace IJunior.TypedScenes
             provider.GenerateCodeFromCompileUnit(targetUnit, code, options);
 
             return code.ToString();
+        }
+
+        private static void AddLoadingMethod(CodeTypeDeclaration targetClass, Type parameterType = null)
+        {
+            var loadMethod = new CodeMemberMethod();
+            loadMethod.Name = "Load";
+            loadMethod.Attributes = MemberAttributes.Public | MemberAttributes.Static;
+            if (parameterType != null)
+            {
+                var parameter = new CodeParameterDeclarationExpression(parameterType, "argument");
+                loadMethod.Parameters.Add(parameter);
+            }
+            loadMethod.Statements.Add(new CodeSnippetExpression("LoadScene(GUID)"));
+            targetClass.Members.Add(loadMethod);
         }
     }
 }
