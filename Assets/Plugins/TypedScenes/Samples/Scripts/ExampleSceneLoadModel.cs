@@ -1,8 +1,8 @@
-﻿public class CustomClass
+﻿public class ExampleSceneLoadModel
 {
     private string _message;
 
-    public CustomClass(string message)
+    public ExampleSceneLoadModel(string message)
     {
         _message = message;
     }

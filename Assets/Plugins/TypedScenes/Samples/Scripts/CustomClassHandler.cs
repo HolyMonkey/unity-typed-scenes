@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
 using IJunior.TypedScenes;
 
-public class CustomClassHandler : MonoBehaviour, ISceneLoadHandler<CustomClass>
+public class CustomClassHandler : MonoBehaviour, ISceneLoadHandler<ExampleSceneLoadModel>
 {
-    public void OnSceneLoaded(CustomClass argument)
+    public void OnSceneLoaded(ExampleSceneLoadModel argument)
     {
         Debug.Log(argument.ToString());
     }
