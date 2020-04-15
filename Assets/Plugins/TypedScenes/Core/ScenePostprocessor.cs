@@ -1,23 +1,23 @@
 ﻿using System.IO;
 using UnityEditor;
 
-namespace IJunior.TypedScene
+namespace IJunior.TypedScenes
 {
     public class ScenePostprocessor : AssetPostprocessor
     {
         private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
         {
-            DetectSceneCreation(importedAssets);
+            DetectSceneImport(importedAssets);
             DetectSceneDeletion(deletedAssets);
             DetectSceneMovement(movedAssets, movedFromAssetPaths);
         }
 
-        private static void DetectSceneCreation(string[] importedAssets)
+        private static void DetectSceneImport(string[] importedAssets)
         {
             foreach (string assetPath in importedAssets)
             {
                 if (Path.GetExtension(assetPath) == TypedSceneSettings.SceneExtension
-                    && TypedSceneValidator.ValidateNewScene(assetPath))
+                    && TypedSceneValidator.ValidateSceneImport(assetPath))
                 {
                     var name = Path.GetFileNameWithoutExtension(assetPath);
                     var guid = AssetDatabase.AssetPathToGUID(assetPath);
@@ -32,7 +32,7 @@ namespace IJunior.TypedScene
             foreach (string assetPath in deletedAssets)
             {
                 if (Path.GetExtension(assetPath) == TypedSceneSettings.SceneExtension
-                    && !TypedSceneValidator.SameNameExists(Path.GetFileNameWithoutExtension(assetPath)))
+                    && !TypedSceneValidator.ValidateSceneDeletion(Path.GetFileNameWithoutExtension(assetPath)))
                     TypedSceneStorage.Delete(Path.GetFileNameWithoutExtension(assetPath));
             }
         }

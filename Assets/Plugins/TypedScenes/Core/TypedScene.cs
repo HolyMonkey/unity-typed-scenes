@@ -1,7 +1,7 @@
 ﻿using UnityEditor;
 using UnityEngine.SceneManagement;
 
-namespace IJunior.TypedScene
+namespace IJunior.TypedScenes
 {
     public abstract class TypedScene
     {

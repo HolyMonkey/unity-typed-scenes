@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using UnityEditor;
 
-namespace IJunior.TypedScene
+namespace IJunior.TypedScenes
 {
     public class TypedSceneStorage
     {

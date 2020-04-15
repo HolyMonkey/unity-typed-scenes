@@ -1,8 +1,9 @@
-﻿using System.CodeDom;
+﻿using System;
+using System.CodeDom;
 using System.CodeDom.Compiler;
 using System.IO;
 
-namespace IJunior.TypedScene
+namespace IJunior.TypedScenes
 {
     public class TypedSceneGenerator
     {
@@ -13,16 +14,13 @@ namespace IJunior.TypedScene
             var targetClass = new CodeTypeDeclaration(className);
             targetClass.BaseTypes.Add("TypedScene");
 
-            var pathConstant = new CodeMemberField(typeof(string), "GUID");
-            pathConstant.Attributes = MemberAttributes.Private | MemberAttributes.Const;
-            pathConstant.InitExpression = new CodePrimitiveExpression(GUID);
-            targetClass.Members.Add(pathConstant);
+            AddConstantValue(targetClass, typeof(string), "GUID", GUID);
 
-            var loadMethod = new CodeMemberMethod();
-            loadMethod.Name = "Load";
-            loadMethod.Attributes = MemberAttributes.Public | MemberAttributes.Static;
-            loadMethod.Statements.Add(new CodeSnippetExpression("LoadScene(GUID)"));
-            targetClass.Members.Add(loadMethod);
+            var loadingParameters = SceneAnalyzer.GetLoadingParameters(GUID);
+            foreach (var loadingParameter in loadingParameters)
+            {
+                AddLoadingMethod(targetClass, loadingParameter);
+            }
 
             targetNamespace.Types.Add(targetClass);
             targetUnit.Namespaces.Add(targetNamespace);
@@ -35,6 +33,28 @@ namespace IJunior.TypedScene
             provider.GenerateCodeFromCompileUnit(targetUnit, code, options);
 
             return code.ToString();
+        }
+
+        private static void AddConstantValue(CodeTypeDeclaration targetClass, Type type, string name, string value)
+        {
+            var pathConstant = new CodeMemberField(type, name);
+            pathConstant.Attributes = MemberAttributes.Private | MemberAttributes.Const;
+            pathConstant.InitExpression = new CodePrimitiveExpression(value);
+            targetClass.Members.Add(pathConstant);
+        }
+
+        private static void AddLoadingMethod(CodeTypeDeclaration targetClass, Type parameterType = null)
+        {
+            var loadMethod = new CodeMemberMethod();
+            loadMethod.Name = "Load";
+            loadMethod.Attributes = MemberAttributes.Public | MemberAttributes.Static;
+            if (parameterType != null)
+            {
+                var parameter = new CodeParameterDeclarationExpression(parameterType, "argument");
+                loadMethod.Parameters.Add(parameter);
+            }
+            loadMethod.Statements.Add(new CodeSnippetExpression("LoadScene(GUID)"));
+            targetClass.Members.Add(loadMethod);
         }
     }
 }
