@@ -48,12 +48,17 @@ namespace IJunior.TypedScenes
             var loadMethod = new CodeMemberMethod();
             loadMethod.Name = "Load";
             loadMethod.Attributes = MemberAttributes.Public | MemberAttributes.Static;
+
+            var loadingStatement = "LoadScene(GUID)";
+
             if (parameterType != null)
             {
                 var parameter = new CodeParameterDeclarationExpression(parameterType, "argument");
                 loadMethod.Parameters.Add(parameter);
+                loadingStatement = "LoadScene(GUID, argument)";
             }
-            loadMethod.Statements.Add(new CodeSnippetExpression("LoadScene(GUID)"));
+
+            loadMethod.Statements.Add(new CodeSnippetExpression(loadingStatement));
             targetClass.Members.Add(loadMethod);
         }
     }

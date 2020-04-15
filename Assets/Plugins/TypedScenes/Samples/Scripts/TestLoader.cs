@@ -13,7 +13,11 @@ public class TestLoader : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            TypedScene.LoadScene("3417602231161af48b9682e519590d2f", new ExampleSceneLoadModel("Loading model test"));
+            New_Scene.Load(new ExampleSceneLoadModel("Loading model test"));
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            New_Scene.Load(32);
         }
     }
 }

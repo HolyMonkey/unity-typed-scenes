@@ -24,22 +24,12 @@ namespace IJunior.TypedScenes
         
         public static void Load(ExampleSceneLoadModel argument)
         {
-            LoadScene(GUID);
+            LoadScene(GUID, argument);
         }
         
         public static void Load(int argument)
         {
-            LoadScene(GUID);
-        }
-        
-        public static void Load(float argument)
-        {
-            LoadScene(GUID);
-        }
-        
-        public static void Load(bool argument)
-        {
-            LoadScene(GUID);
+            LoadScene(GUID, argument);
         }
     }
 }
