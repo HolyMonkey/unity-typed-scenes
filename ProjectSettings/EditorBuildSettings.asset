@@ -8,7 +8,4 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Plugins/TypedScenes/Samples/SampleScene.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
-  - enabled: 1
-    path: Assets/Plugins/TypedScenes/Samples/New_Scene.unity
-    guid: 3417602231161af48b9682e519590d2f
   m_configObjects: {}
