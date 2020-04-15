@@ -13,7 +13,7 @@ namespace IJunior.TypedScenes
             SceneManager.LoadScene(path);
         }
 
-        protected static void LoadScene<T>(string guid, T argument)
+        public static void LoadScene<T>(string guid, T argument)
         {
             var path = AssetDatabase.GUIDToAssetPath(guid);
 
