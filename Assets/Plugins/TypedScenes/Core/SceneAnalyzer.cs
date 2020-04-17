@@ -11,12 +11,10 @@ namespace IJunior.TypedScenes
 {
     public class SceneAnalyzer
     {
-        public static IEnumerable<Type> GetLoadingParameters(string sceneGUID, bool includeNullParameter = true)
+        public static IEnumerable<Type> GetLoadingParameters(string sceneGUID)
         {
             var loadParameters = new HashSet<Type>();
-
-            if (includeNullParameter)
-                loadParameters.Add(null);
+            loadParameters.Add(null);
 
             TryAnalyseScene(sceneGUID, scene =>
             {
@@ -34,6 +32,9 @@ namespace IJunior.TypedScenes
                     }
                 }
             });
+
+            if (loadParameters.Count > 1)
+                loadParameters.Remove(null);
 
             return loadParameters;
         }
