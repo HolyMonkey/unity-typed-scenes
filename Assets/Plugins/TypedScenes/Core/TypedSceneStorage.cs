@@ -27,5 +27,5 @@ namespace IJunior.TypedScenes
                 AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
             }
         }
-    } 
+    }
 }
