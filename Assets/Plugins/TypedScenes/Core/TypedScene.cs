@@ -7,13 +7,13 @@ namespace IJunior.TypedScenes
 {
     public abstract class TypedScene
     {
-        protected static void LoadScene(string guid)
+        protected static void LoadScene(string guid, LoadSceneMode loadSceneMode)
         {
             var path = AssetDatabase.GUIDToAssetPath(guid);
-            SceneManager.LoadScene(path);
+            SceneManager.LoadScene(path, loadSceneMode);
         }
 
-        protected static void LoadScene<T>(string guid, T argument)
+        protected static void LoadScene<T>(string guid, LoadSceneMode loadSceneMode, T argument)
         {
             var path = AssetDatabase.GUIDToAssetPath(guid);
 
@@ -28,7 +28,7 @@ namespace IJunior.TypedScenes
             };
 
             SceneManager.activeSceneChanged += handler;
-            SceneManager.LoadScene(path);
+            SceneManager.LoadScene(path, loadSceneMode);
         }
 
         private static void HandleSceneLoaders<T>(T loadingModel)
