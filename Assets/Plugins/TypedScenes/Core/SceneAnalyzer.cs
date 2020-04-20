@@ -39,6 +39,26 @@ namespace IJunior.TypedScenes
             return loadParameters;
         }
 
+        public static bool TryAddTypedProcessor(string sceneGUID)
+        {
+            var added = false;
+
+            TryAnalyseScene(sceneGUID, scene =>
+            {
+                var componentTypes = GetAllTypes(scene);
+
+                if (!componentTypes.Contains(typeof(TypedProcessor)))
+                {
+                    var gameObject = new GameObject("TypedProcessor");
+                    gameObject.AddComponent<TypedProcessor>();
+                    scene.GetRootGameObjects().Append(gameObject);
+                    added = true;
+                }
+            });
+
+            return added;
+        }
+
         private static void TryAnalyseScene(string sceneGUID, Action<Scene> analyser)
         {
             var scene = SceneManager.GetActiveScene();

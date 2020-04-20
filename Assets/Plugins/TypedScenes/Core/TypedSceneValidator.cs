@@ -11,6 +11,9 @@ namespace IJunior.TypedScenes
             var name = Path.GetFileNameWithoutExtension(scenePath);
             var validName = GetValidName(name);
 
+            if (SceneAnalyzer.TryAddTypedProcessor(AssetDatabase.AssetPathToGUID(scenePath)))
+                return false;
+
             if (name != validName)
             {
                 var validPath = Path.GetDirectoryName(scenePath) + Path.DirectorySeparatorChar + validName + TypedSceneSettings.SceneExtension;
@@ -27,7 +30,7 @@ namespace IJunior.TypedScenes
         {
             var assets = AssetDatabase.FindAssets(sceneName);
 
-            foreach(var asset in assets)
+            foreach (var asset in assets)
             {
                 var path = AssetDatabase.GUIDToAssetPath(asset);
                 var name = Path.GetFileNameWithoutExtension(path);
