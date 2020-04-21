@@ -1,5 +1,5 @@
-﻿using UnityEngine;
-using UnityEngine.SceneManagement;
+﻿using System.Linq;
+using UnityEngine;
 
 namespace IJunior.TypedScenes
 {
@@ -7,12 +7,9 @@ namespace IJunior.TypedScenes
     {
         private void Awake()
         {
-            foreach(var rootObject in SceneManager.GetActiveScene().GetRootGameObjects())
+            foreach(var handler in FindObjectsOfType<MonoBehaviour>().OfType<ITypedAwakeHandler>())
             {
-                foreach (var handler in rootObject.GetComponentsInChildren<ITypedAwakeHandler>())
-                {
-                    handler.OnSceneAwake();
-                }
+                handler.OnSceneAwake();
             }
         }
     }
