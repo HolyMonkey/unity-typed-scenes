@@ -20,7 +20,7 @@ namespace IJunior.TypedScenes
             {
                 var componentTypes = GetAllTypes(scene);
 
-                foreach(var type in componentTypes)
+                foreach (var type in componentTypes)
                 {
                     if (type.GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(ISceneLoadHandler<>)))
                     {
@@ -52,6 +52,8 @@ namespace IJunior.TypedScenes
                     var gameObject = new GameObject("TypedProcessor");
                     gameObject.AddComponent<TypedProcessor>();
                     scene.GetRootGameObjects().Append(gameObject);
+                    Undo.RegisterCreatedObjectUndo(gameObject, "Typed processor added");
+                    EditorSceneManager.SaveScene(scene);
                     added = true;
                 }
             });
@@ -74,6 +76,7 @@ namespace IJunior.TypedScenes
             if (File.Exists(targetPath))
             {
                 scene = EditorSceneManager.OpenScene(targetPath, OpenSceneMode.Additive);
+                SceneManager.SetActiveScene(scene);
                 analyser(scene);
                 EditorSceneManager.CloseScene(scene, true);
             }

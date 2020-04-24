@@ -2,6 +2,7 @@
 using System.CodeDom;
 using System.CodeDom.Compiler;
 using System.IO;
+using UnityEngine.SceneManagement;
 
 namespace IJunior.TypedScenes
 {
@@ -12,6 +13,7 @@ namespace IJunior.TypedScenes
             var targetUnit = new CodeCompileUnit();
             var targetNamespace = new CodeNamespace(TypedSceneSettings.Namespace);
             var targetClass = new CodeTypeDeclaration(className);
+            targetNamespace.Imports.Add(new CodeNamespaceImport("UnityEngine.SceneManagement"));
             targetClass.BaseTypes.Add("TypedScene");
 
             AddConstantValue(targetClass, typeof(string), "GUID", GUID);
@@ -49,14 +51,17 @@ namespace IJunior.TypedScenes
             loadMethod.Name = "Load";
             loadMethod.Attributes = MemberAttributes.Public | MemberAttributes.Static;
 
-            var loadingStatement = "LoadScene(GUID)";
+            var loadingStatement = "LoadScene(GUID, loadSceneMode)";
 
             if (parameterType != null)
             {
                 var parameter = new CodeParameterDeclarationExpression(parameterType, "argument");
                 loadMethod.Parameters.Add(parameter);
-                loadingStatement = "LoadScene(GUID, argument)";
+                loadingStatement = "LoadScene(GUID, loadSceneMode, argument)";
             }
+
+            var loadingModeParameter = new CodeParameterDeclarationExpression(typeof(LoadSceneMode).Name, "loadSceneMode = LoadSceneMode.Single");
+            loadMethod.Parameters.Add(loadingModeParameter);
 
             loadMethod.Statements.Add(new CodeSnippetExpression(loadingStatement));
             targetClass.Members.Add(loadMethod);

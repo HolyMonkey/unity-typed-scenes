@@ -11,9 +11,6 @@ namespace IJunior.TypedScenes
             var name = Path.GetFileNameWithoutExtension(scenePath);
             var validName = GetValidName(name);
 
-            if (SceneAnalyzer.TryAddTypedProcessor(AssetDatabase.AssetPathToGUID(scenePath)))
-                return false;
-
             if (name != validName)
             {
                 var validPath = Path.GetDirectoryName(scenePath) + Path.DirectorySeparatorChar + validName + TypedSceneSettings.SceneExtension;
@@ -22,6 +19,9 @@ namespace IJunior.TypedScenes
                 AssetDatabase.ImportAsset(validPath, ImportAssetOptions.ForceUpdate);
                 return false;
             }
+
+            if (SceneAnalyzer.TryAddTypedProcessor(AssetDatabase.AssetPathToGUID(scenePath)))
+                return false;
 
             return true;
         }
