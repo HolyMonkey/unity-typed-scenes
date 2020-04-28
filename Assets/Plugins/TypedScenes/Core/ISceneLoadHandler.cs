@@ -2,7 +2,7 @@ using System;
 
 namespace IJunior.TypedScenes
 {
-    interface ISceneLoadHandler<T>
+    public interface ISceneLoadHandler<T>
     {
         void OnSceneLoaded(T argument);
     }
