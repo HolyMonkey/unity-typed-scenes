@@ -20,6 +20,9 @@ namespace IJunior.TypedScenes
                 return false;
             }
 
+            if (SceneAnalyzer.TryAddTypedProcessor(AssetDatabase.AssetPathToGUID(scenePath)))
+                return false;
+
             return true;
         }
 
@@ -27,7 +30,7 @@ namespace IJunior.TypedScenes
         {
             var assets = AssetDatabase.FindAssets(sceneName);
 
-            foreach(var asset in assets)
+            foreach (var asset in assets)
             {
                 var path = AssetDatabase.GUIDToAssetPath(asset);
                 var name = Path.GetFileNameWithoutExtension(path);

@@ -1,34 +1,41 @@
-﻿using System.IO;
+﻿using System;
 using UnityEditor;
-using UnityEngine.Events;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace IJunior.TypedScenes
 {
     public abstract class TypedScene
     {
-        protected static void LoadScene(string guid)
-        {
-            var path = AssetDatabase.GUIDToAssetPath(guid);
-            SceneManager.LoadScene(path);
-        }
-
-        protected static void LoadScene<T>(string guid, T argument)
+        protected static void LoadScene(string guid, LoadSceneMode loadSceneMode)
         {
             var path = AssetDatabase.GUIDToAssetPath(guid);
 
-            UnityAction<Scene, Scene> handler = null;
-            handler = (from, to) =>
+            Action<AsyncOperation> handler = null;
+            handler = asyncOperation =>
             {
-                if (to.name == Path.GetFileNameWithoutExtension(path))
-                {
-                    SceneManager.activeSceneChanged -= handler;
-                    HandleSceneLoaders(argument);
-                }
+                SceneManager.SetActiveScene(SceneManager.GetSceneByPath(path));
+                asyncOperation.completed -= handler;
             };
 
-            SceneManager.activeSceneChanged += handler;
-            SceneManager.LoadScene(path);
+            var loader = SceneManager.LoadSceneAsync(path, loadSceneMode);
+            loader.completed += handler;
+        }
+
+        protected static void LoadScene<T>(string guid, LoadSceneMode loadSceneMode, T argument)
+        {
+            var path = AssetDatabase.GUIDToAssetPath(guid);
+
+            Action<AsyncOperation> handler = null;
+            handler = asyncOperation =>
+            {
+                SceneManager.SetActiveScene(SceneManager.GetSceneByPath(path));
+                HandleSceneLoaders(argument);
+                asyncOperation.completed -= handler;
+            };
+
+            var loader = SceneManager.LoadSceneAsync(path, loadSceneMode);
+            loader.completed += handler;
         }
 
         private static void HandleSceneLoaders<T>(T loadingModel)

@@ -11,18 +11,16 @@ namespace IJunior.TypedScenes
 {
     public class SceneAnalyzer
     {
-        public static IEnumerable<Type> GetLoadingParameters(string sceneGUID, bool includeNullParameter = true)
+        public static IEnumerable<Type> GetLoadingParameters(string sceneGUID)
         {
             var loadParameters = new HashSet<Type>();
-
-            if (includeNullParameter)
-                loadParameters.Add(null);
+            loadParameters.Add(null);
 
             TryAnalyseScene(sceneGUID, scene =>
             {
                 var componentTypes = GetAllTypes(scene);
 
-                foreach(var type in componentTypes)
+                foreach (var type in componentTypes)
                 {
                     if (type.GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(ISceneLoadHandler<>)))
                     {
@@ -35,7 +33,32 @@ namespace IJunior.TypedScenes
                 }
             });
 
+            if (loadParameters.Count > 1)
+                loadParameters.Remove(null);
+
             return loadParameters;
+        }
+
+        public static bool TryAddTypedProcessor(string sceneGUID)
+        {
+            var added = false;
+
+            TryAnalyseScene(sceneGUID, scene =>
+            {
+                var componentTypes = GetAllTypes(scene);
+
+                if (!componentTypes.Contains(typeof(TypedProcessor)))
+                {
+                    var gameObject = new GameObject("TypedProcessor");
+                    gameObject.AddComponent<TypedProcessor>();
+                    scene.GetRootGameObjects().Append(gameObject);
+                    Undo.RegisterCreatedObjectUndo(gameObject, "Typed processor added");
+                    EditorSceneManager.SaveScene(scene);
+                    added = true;
+                }
+            });
+
+            return added;
         }
 
         private static void TryAnalyseScene(string sceneGUID, Action<Scene> analyser)
@@ -53,6 +76,7 @@ namespace IJunior.TypedScenes
             if (File.Exists(targetPath))
             {
                 scene = EditorSceneManager.OpenScene(targetPath, OpenSceneMode.Additive);
+                SceneManager.SetActiveScene(scene);
                 analyser(scene);
                 EditorSceneManager.CloseScene(scene, true);
             }
