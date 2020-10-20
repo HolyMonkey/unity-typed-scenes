@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿#if UNITY_EDITOR
+using System.IO;
 using UnityEditor;
 
 namespace IJunior.TypedScenes
@@ -20,8 +21,7 @@ namespace IJunior.TypedScenes
                     && TypedSceneValidator.ValidateSceneImport(assetPath))
                 {
                     var name = Path.GetFileNameWithoutExtension(assetPath);
-                    var guid = AssetDatabase.AssetPathToGUID(assetPath);
-                    var sourceCode = TypedSceneGenerator.Generate(name, guid);
+                    var sourceCode = TypedSceneGenerator.Generate(name, name);
                     TypedSceneStorage.Save(name, sourceCode);
                 }
             }
@@ -53,3 +53,4 @@ namespace IJunior.TypedScenes
         }
     }
 }
+#endif
