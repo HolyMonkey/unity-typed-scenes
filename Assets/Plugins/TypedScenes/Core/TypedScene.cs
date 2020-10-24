@@ -1,5 +1,4 @@
 ﻿using System;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -7,34 +6,30 @@ namespace IJunior.TypedScenes
 {
     public abstract class TypedScene
     {
-        protected static void LoadScene(string guid, LoadSceneMode loadSceneMode)
+        protected static void LoadScene(string sceneName, LoadSceneMode loadSceneMode)
         {
-            var path = AssetDatabase.GUIDToAssetPath(guid);
-
             Action<AsyncOperation> handler = null;
             handler = asyncOperation =>
             {
-                SceneManager.SetActiveScene(SceneManager.GetSceneByPath(path));
+                SceneManager.SetActiveScene(SceneManager.GetSceneByName(sceneName));
                 asyncOperation.completed -= handler;
             };
 
-            var loader = SceneManager.LoadSceneAsync(path, loadSceneMode);
+            var loader = SceneManager.LoadSceneAsync(sceneName, loadSceneMode);
             loader.completed += handler;
         }
 
-        protected static void LoadScene<T>(string guid, LoadSceneMode loadSceneMode, T argument)
+        protected static void LoadScene<T>(string sceneName, LoadSceneMode loadSceneMode, T argument)
         {
-            var path = AssetDatabase.GUIDToAssetPath(guid);
-
             Action<AsyncOperation> handler = null;
             handler = asyncOperation =>
             {
-                SceneManager.SetActiveScene(SceneManager.GetSceneByPath(path));
+                SceneManager.SetActiveScene(SceneManager.GetSceneByName(sceneName));
                 HandleSceneLoaders(argument);
                 asyncOperation.completed -= handler;
             };
 
-            var loader = SceneManager.LoadSceneAsync(path, loadSceneMode);
+            var loader = SceneManager.LoadSceneAsync(sceneName, loadSceneMode);
             loader.completed += handler;
         }
 

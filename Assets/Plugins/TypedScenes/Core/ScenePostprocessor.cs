@@ -1,4 +1,7 @@
-﻿using System.IO;
+﻿#if UNITY_EDITOR
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using UnityEditor;
 
 namespace IJunior.TypedScenes
@@ -20,8 +23,14 @@ namespace IJunior.TypedScenes
                     && TypedSceneValidator.ValidateSceneImport(assetPath))
                 {
                     var name = Path.GetFileNameWithoutExtension(assetPath);
+                    var sourceCode = TypedSceneGenerator.Generate(name, name);
                     var guid = AssetDatabase.AssetPathToGUID(assetPath);
-                    var sourceCode = TypedSceneGenerator.Generate(name, guid);
+                    if (!EditorBuildSettings.scenes.Any(scene => scene.guid.ToString() == guid))
+                    {
+                        var newSceneList = new List<EditorBuildSettingsScene>(EditorBuildSettings.scenes);
+                        newSceneList.Add(new EditorBuildSettingsScene(assetPath, true));
+                        EditorBuildSettings.scenes = newSceneList.ToArray();
+                    }
                     TypedSceneStorage.Save(name, sourceCode);
                 }
             }
@@ -33,7 +42,12 @@ namespace IJunior.TypedScenes
             {
                 if (Path.GetExtension(assetPath) == TypedSceneSettings.SceneExtension
                     && !TypedSceneValidator.ValidateSceneDeletion(Path.GetFileNameWithoutExtension(assetPath)))
+                {
+                    var newSceneList = new List<EditorBuildSettingsScene>(EditorBuildSettings.scenes);
+                    newSceneList.RemoveAll(scene => scene.path == assetPath);
+                    EditorBuildSettings.scenes = newSceneList.ToArray();
                     TypedSceneStorage.Delete(Path.GetFileNameWithoutExtension(assetPath));
+                }
             }
         }
 
@@ -53,3 +67,4 @@ namespace IJunior.TypedScenes
         }
     }
 }
+#endif

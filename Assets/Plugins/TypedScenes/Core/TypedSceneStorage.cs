@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿#if UNITY_EDITOR
+using System.IO;
 using UnityEditor;
 
 namespace IJunior.TypedScenes
@@ -29,3 +30,4 @@ namespace IJunior.TypedScenes
         }
     }
 }
+#endif

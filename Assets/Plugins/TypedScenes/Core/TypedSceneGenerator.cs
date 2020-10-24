@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if UNITY_EDITOR
+using System;
 using System.CodeDom;
 using System.CodeDom.Compiler;
 using System.IO;
@@ -8,17 +9,18 @@ namespace IJunior.TypedScenes
 {
     public class TypedSceneGenerator
     {
-        public static string Generate(string className, string GUID)
+        public static string Generate(string className, string sceneName)
         {
             var targetUnit = new CodeCompileUnit();
             var targetNamespace = new CodeNamespace(TypedSceneSettings.Namespace);
             var targetClass = new CodeTypeDeclaration(className);
             targetNamespace.Imports.Add(new CodeNamespaceImport("UnityEngine.SceneManagement"));
             targetClass.BaseTypes.Add("TypedScene");
+            targetClass.TypeAttributes = System.Reflection.TypeAttributes.Class | System.Reflection.TypeAttributes.Public;
 
-            AddConstantValue(targetClass, typeof(string), "GUID", GUID);
+            AddConstantValue(targetClass, typeof(string), "_sceneName", sceneName);
 
-            var loadingParameters = SceneAnalyzer.GetLoadingParameters(GUID);
+            var loadingParameters = SceneAnalyzer.GetLoadingParameters(sceneName);
             foreach (var loadingParameter in loadingParameters)
             {
                 AddLoadingMethod(targetClass, loadingParameter);
@@ -51,13 +53,13 @@ namespace IJunior.TypedScenes
             loadMethod.Name = "Load";
             loadMethod.Attributes = MemberAttributes.Public | MemberAttributes.Static;
 
-            var loadingStatement = "LoadScene(GUID, loadSceneMode)";
+            var loadingStatement = "LoadScene(_sceneName, loadSceneMode)";
 
             if (parameterType != null)
             {
                 var parameter = new CodeParameterDeclarationExpression(parameterType, "argument");
                 loadMethod.Parameters.Add(parameter);
-                loadingStatement = "LoadScene(GUID, loadSceneMode, argument)";
+                loadingStatement = "LoadScene(_sceneName, loadSceneMode, argument)";
             }
 
             var loadingModeParameter = new CodeParameterDeclarationExpression(typeof(LoadSceneMode).Name, "loadSceneMode = LoadSceneMode.Single");
@@ -68,3 +70,4 @@ namespace IJunior.TypedScenes
         }
     }
 }
+#endif
