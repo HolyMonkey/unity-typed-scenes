@@ -22,7 +22,7 @@ namespace IJunior.TypedScenes
 
         private static void Initialize()
         {
-            _instance = new GameObject("TypedProcessor").AddComponent<LoadingProcessor>();
+            _instance = new GameObject("LoadingProcessor").AddComponent<LoadingProcessor>();
             _instance.transform.SetParent(null);
             DontDestroyOnLoad(_instance);
         }
