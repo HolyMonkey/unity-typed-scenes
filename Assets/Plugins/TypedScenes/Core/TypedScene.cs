@@ -1,47 +1,19 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace IJunior.TypedScenes
 {
     public abstract class TypedScene
     {
-        protected static void LoadScene(string sceneName, LoadSceneMode loadSceneMode)
+        protected static AsyncOperation LoadScene(string sceneName, LoadSceneMode loadSceneMode)
         {
-            Action<AsyncOperation> handler = null;
-            handler = asyncOperation =>
-            {
-                SceneManager.SetActiveScene(SceneManager.GetSceneByName(sceneName));
-                asyncOperation.completed -= handler;
-            };
-
-            var loader = SceneManager.LoadSceneAsync(sceneName, loadSceneMode);
-            loader.completed += handler;
+            return SceneManager.LoadSceneAsync(sceneName, loadSceneMode);
         }
 
-        protected static void LoadScene<T>(string sceneName, LoadSceneMode loadSceneMode, T argument)
+        protected static AsyncOperation LoadScene<T>(string sceneName, LoadSceneMode loadSceneMode, T argument)
         {
-            Action<AsyncOperation> handler = null;
-            handler = asyncOperation =>
-            {
-                SceneManager.SetActiveScene(SceneManager.GetSceneByName(sceneName));
-                HandleSceneLoaders(argument);
-                asyncOperation.completed -= handler;
-            };
-
-            var loader = SceneManager.LoadSceneAsync(sceneName, loadSceneMode);
-            loader.completed += handler;
-        }
-
-        private static void HandleSceneLoaders<T>(T loadingModel)
-        {
-            foreach (var rootObjects in SceneManager.GetActiveScene().GetRootGameObjects())
-            {
-                foreach (var handler in rootObjects.GetComponentsInChildren<ISceneLoadHandler<T>>())
-                {
-                    handler.OnSceneLoaded(loadingModel);
-                }
-            }
+            LoadingProcessor.Instance.RegisterLoadingModel(argument);
+            return SceneManager.LoadSceneAsync(sceneName, loadSceneMode);
         }
     }
 }
