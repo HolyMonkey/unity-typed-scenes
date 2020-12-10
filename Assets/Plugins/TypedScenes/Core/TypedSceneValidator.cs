@@ -1,49 +1,49 @@
 ﻿#if UNITY_EDITOR
 using System.IO;
+using System.Linq;
 using System.Text;
 using UnityEditor;
 
 namespace IJunior.TypedScenes
 {
-    public class TypedSceneValidator
+    public static class TypedSceneValidator
     {
-        public static bool ValidateSceneImport(string scenePath)
+        public static bool DetectSceneImport(string assetPath, out string validScenePath)
         {
-            var name = Path.GetFileNameWithoutExtension(scenePath);
-            var validName = GetValidName(name);
+            validScenePath = null;
+            
+            if (Path.GetExtension(assetPath) != TypedSceneSettings.SceneExtension)
+                return false;
 
-            if (name != validName)
+            using (var analyzableScene  = AnalyzableScene.Create(assetPath))
             {
-                var validPath = Path.GetDirectoryName(scenePath) + Path.DirectorySeparatorChar + validName + TypedSceneSettings.SceneExtension;
-                File.Move(scenePath, validPath);
-                File.Delete(scenePath + TypedSceneSettings.MetaExtension);
-                AssetDatabase.ImportAsset(validPath, ImportAssetOptions.ForceUpdate);
-                return false;
+                var validName = GetValidName(analyzableScene.Name);
+
+                if (analyzableScene.Name != validName)
+                {
+                    var validPath = Path.GetDirectoryName(assetPath) + Path.DirectorySeparatorChar + validName + TypedSceneSettings.SceneExtension;
+                    File.Move(assetPath, validPath);
+                    File.Delete(assetPath + TypedSceneSettings.MetaExtension);
+                    AssetDatabase.ImportAsset(validPath, ImportAssetOptions.ForceUpdate);
+                    return false;
+                }
+
+                if (SceneAnalyzer.TryAddTypedProcessor(analyzableScene))
+                    return false;
+            
+                validScenePath = analyzableScene.AssetPath;
+                return true;
             }
-
-            if (SceneAnalyzer.TryAddTypedProcessor(AssetDatabase.AssetPathToGUID(scenePath)))
-                return false;
-
-            return true;
         }
 
-        public static bool ValidateSceneDeletion(string sceneName)
+        public static bool DetectSceneDeletion(string sceneName)
         {
             var assets = AssetDatabase.FindAssets(sceneName);
 
-            foreach (var asset in assets)
-            {
-                var path = AssetDatabase.GUIDToAssetPath(asset);
-                var name = Path.GetFileNameWithoutExtension(path);
-
-                if (name != sceneName)
-                    continue;
-
-                if (Path.GetExtension(path) == TypedSceneSettings.SceneExtension)
-                    return true;
-            }
-
-            return false;
+            return (assets.Select(AssetDatabase.GUIDToAssetPath)
+                .Select(path => new {path, name = Path.GetFileNameWithoutExtension(path)})
+                .Where(@t => @t.name == sceneName)
+                .Select(@t => @t.path)).Any(path => Path.GetExtension(path) == TypedSceneSettings.SceneExtension);
         }
 
         private static string GetValidName(string sceneName)

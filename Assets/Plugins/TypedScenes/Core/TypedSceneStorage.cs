@@ -4,11 +4,11 @@ using UnityEditor;
 
 namespace IJunior.TypedScenes
 {
-    public class TypedSceneStorage
+    public static class TypedSceneStorage
     {
-        public static void Save(string className, string sourceCode)
+        public static void Save(string fileName, string sourceCode)
         {
-            var path = TypedSceneSettings.SavingDirectory + className + TypedSceneSettings.ClassExtension;
+            var path = TypedSceneSettings.SavingDirectory + fileName + TypedSceneSettings.ClassExtension;
             Directory.CreateDirectory(TypedSceneSettings.SavingDirectory);
 
             if (File.Exists(path) && File.ReadAllText(path) == sourceCode)
