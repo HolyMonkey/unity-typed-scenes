@@ -9,7 +9,7 @@ namespace IJunior.TypedScenes
 {
     public class TypedSceneGenerator
     {
-        public static string Generate(string className, string sceneName)
+        public static string Generate(string className, string sceneName, string sceneGUID)
         {
             var targetUnit = new CodeCompileUnit();
             var targetNamespace = new CodeNamespace(TypedSceneSettings.Namespace);
@@ -20,7 +20,7 @@ namespace IJunior.TypedScenes
 
             AddConstantValue(targetClass, typeof(string), "_sceneName", sceneName);
 
-            var loadingParameters = SceneAnalyzer.GetLoadingParameters(sceneName);
+            var loadingParameters = SceneAnalyzer.GetLoadingParameters(sceneGUID);
             foreach (var loadingParameter in loadingParameters)
             {
                 AddLoadingMethod(targetClass, loadingParameter);

@@ -23,7 +23,7 @@ namespace IJunior.TypedScenes
                     && TypedSceneValidator.ValidateSceneImport(assetPath))
                 {
                     var name = Path.GetFileNameWithoutExtension(assetPath);
-                    var sourceCode = TypedSceneGenerator.Generate(name, name);
+                    var sourceCode = TypedSceneGenerator.Generate(name, name, AssetDatabase.AssetPathToGUID(assetPath));
                     var guid = AssetDatabase.AssetPathToGUID(assetPath);
                     if (!EditorBuildSettings.scenes.Any(scene => scene.guid.ToString() == guid))
                     {
