@@ -11,6 +11,7 @@ namespace IJunior.TypedScenes
             {
                 handler.OnSceneAwake();
             }
+            LoadingProcessor.Instance.ApplyLoadingModel();
         }
     }
 }

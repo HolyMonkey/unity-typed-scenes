@@ -1,7 +1,6 @@
 ﻿#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -10,29 +9,19 @@ using UnityEngine.SceneManagement;
 
 namespace IJunior.TypedScenes
 {
-    public class SceneAnalyzer
+    public static class SceneAnalyzer
     {
-        public static IEnumerable<Type> GetLoadingParameters(string sceneGUID)
+        public static IEnumerable<Type> GetLoadingParameters(AnalyzableScene analyzableScene)
         {
-            var loadParameters = new HashSet<Type>();
-            loadParameters.Add(null);
+            var scene = analyzableScene.Scene;
+            var loadParameters = new List<Type> {null};
+            var componentTypes = GetAllTypes(scene);
 
-            TryAnalyseScene(sceneGUID, scene =>
-            {
-                var componentTypes = GetAllTypes(scene);
-
-                foreach (var type in componentTypes)
-                {
-                    if (type.GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(ISceneLoadHandler<>)))
-                    {
-                        var loadMethods = type.GetMethods().Where(method => method.Name == "OnSceneLoaded");
-                        foreach (var method in loadMethods)
-                        {
-                            loadParameters.Add(method.GetParameters()[0].ParameterType);
-                        }
-                    }
-                }
-            });
+            loadParameters.AddRange(componentTypes
+                .Where(type => type.GetInterfaces()
+                    .Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(ISceneLoadHandler<>)))
+                .SelectMany(type => type.GetMethods().Where(method => method.Name == "OnSceneLoaded"),
+                    (type, method) => method.GetParameters()[0].ParameterType));
 
             if (loadParameters.Count > 1)
                 loadParameters.Remove(null);
@@ -40,47 +29,19 @@ namespace IJunior.TypedScenes
             return loadParameters;
         }
 
-        public static bool TryAddTypedProcessor(string sceneGUID)
+        public static bool TryAddTypedProcessor(AnalyzableScene analyzableScene)
         {
-            var added = false;
+            var scene = analyzableScene.Scene;
+            var componentTypes = GetAllTypes(scene);
+            
+            if (componentTypes.Contains(typeof(TypedProcessor))) return false;
 
-            TryAnalyseScene(sceneGUID, scene =>
-            {
-                var componentTypes = GetAllTypes(scene);
-
-                if (!componentTypes.Contains(typeof(TypedProcessor)))
-                {
-                    var gameObject = new GameObject("TypedProcessor");
-                    gameObject.AddComponent<TypedProcessor>();
-                    scene.GetRootGameObjects().Append(gameObject);
-                    Undo.RegisterCreatedObjectUndo(gameObject, "Typed processor added");
-                    EditorSceneManager.SaveScene(scene);
-                    added = true;
-                }
-            });
-
-            return added;
-        }
-
-        private static void TryAnalyseScene(string sceneGUID, Action<Scene> analyser)
-        {
-            var scene = SceneManager.GetActiveScene();
-            var currentPath = scene.path;
-            var targetPath = AssetDatabase.GUIDToAssetPath(sceneGUID);
-
-            if (targetPath == currentPath)
-            {
-                analyser(scene);
-                return;
-            }
-
-            if (File.Exists(targetPath))
-            {
-                scene = EditorSceneManager.OpenScene(targetPath, OpenSceneMode.Additive);
-                SceneManager.SetActiveScene(scene);
-                analyser(scene);
-                EditorSceneManager.CloseScene(scene, true);
-            }
+            var gameObject = new GameObject("TypedProcessor");
+            gameObject.AddComponent<TypedProcessor>();
+            scene.GetRootGameObjects().Append(gameObject);
+            Undo.RegisterCreatedObjectUndo(gameObject, "Typed processor added");
+            EditorSceneManager.SaveScene(scene);
+            return true;
         }
 
         private static IEnumerable<Component> GetAllComponents(Scene activeScene)

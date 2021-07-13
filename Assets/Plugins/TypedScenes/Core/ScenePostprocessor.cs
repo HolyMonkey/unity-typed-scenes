@@ -1,4 +1,5 @@
 ﻿#if UNITY_EDITOR
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,60 +11,58 @@ namespace IJunior.TypedScenes
     {
         private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
         {
-            DetectSceneImport(importedAssets);
-            DetectSceneDeletion(deletedAssets);
-            DetectSceneMovement(movedAssets, movedFromAssetPaths);
-        }
-
-        private static void DetectSceneImport(string[] importedAssets)
-        {
-            foreach (string assetPath in importedAssets)
+            foreach (var importedAsset in importedAssets)
             {
-                if (Path.GetExtension(assetPath) == TypedSceneSettings.SceneExtension
-                    && TypedSceneValidator.ValidateSceneImport(assetPath))
-                {
-                    var name = Path.GetFileNameWithoutExtension(assetPath);
-                    var sourceCode = TypedSceneGenerator.Generate(name, name, AssetDatabase.AssetPathToGUID(assetPath));
-                    var guid = AssetDatabase.AssetPathToGUID(assetPath);
-                    if (!EditorBuildSettings.scenes.Any(scene => scene.guid.ToString() == guid))
-                    {
-                        var newSceneList = new List<EditorBuildSettingsScene>(EditorBuildSettings.scenes);
-                        newSceneList.Add(new EditorBuildSettingsScene(assetPath, true));
-                        EditorBuildSettings.scenes = newSceneList.ToArray();
-                    }
-                    TypedSceneStorage.Save(name, sourceCode);
-                }
+                if (TypedSceneValidator.DetectSceneImport(importedAsset, out var validScenePath))
+                    HandleImportedScene(validScenePath);
             }
-        }
-
-        private static void DetectSceneDeletion(string[] deletedAssets)
-        {
-            foreach (string assetPath in deletedAssets)
+            
+            foreach (var deletedAsset in deletedAssets)
             {
-                if (Path.GetExtension(assetPath) == TypedSceneSettings.SceneExtension
-                    && !TypedSceneValidator.ValidateSceneDeletion(Path.GetFileNameWithoutExtension(assetPath)))
-                {
-                    var newSceneList = new List<EditorBuildSettingsScene>(EditorBuildSettings.scenes);
-                    newSceneList.RemoveAll(scene => scene.path == assetPath);
-                    EditorBuildSettings.scenes = newSceneList.ToArray();
-                    TypedSceneStorage.Delete(Path.GetFileNameWithoutExtension(assetPath));
-                }
+                if (Path.GetExtension(deletedAsset) == TypedSceneSettings.SceneExtension
+                    && !TypedSceneValidator.DetectSceneDeletion(Path.GetFileNameWithoutExtension(deletedAsset)))
+                    HandleSceneDeletion(deletedAsset);
             }
-        }
-
-        private static void DetectSceneMovement(string[] movedAssets, string[] movedFromAssetPaths)
-        {
+            
             for (var i = 0; i < movedFromAssetPaths.Length; i++)
             {
                 if (Path.GetExtension(movedFromAssetPaths[i]) == TypedSceneSettings.SceneExtension)
-                {
-                    var oldName = Path.GetFileNameWithoutExtension(movedFromAssetPaths[i]);
-                    var newName = Path.GetFileNameWithoutExtension(movedAssets[i]);
+                    HandleSceneMovement(movedFromAssetPaths[i], movedAssets[i]);
+            }
+        }
 
-                    if (oldName != newName)
-                        TypedSceneStorage.Delete(oldName);
+        private static void HandleImportedScene(string scenePath)
+        {
+            using (var analyzableScene = AnalyzableScene.Create(scenePath))
+            {
+                var sourceCode = TypedSceneGenerator.Generate(analyzableScene);
+                TypedSceneStorage.Save(analyzableScene.Name, sourceCode);
+            
+                if (EditorBuildSettings.scenes.All(scene => scene.guid.ToString() != analyzableScene.GUID))
+                {
+                    var buildScenes = EditorBuildSettings.scenes;
+                    Array.Resize(ref buildScenes, buildScenes.Length + 1);
+                    buildScenes[buildScenes.Length - 1] = new EditorBuildSettingsScene(analyzableScene.AssetPath, true);
+                    EditorBuildSettings.scenes = buildScenes;
                 }
             }
+        }
+
+        private static void HandleSceneDeletion(string scenePath)
+        {
+            var newSceneList = new List<EditorBuildSettingsScene>(EditorBuildSettings.scenes);
+            newSceneList.RemoveAll(scene => scene.path == scenePath);
+            EditorBuildSettings.scenes = newSceneList.ToArray();
+            TypedSceneStorage.Delete(Path.GetFileNameWithoutExtension(scenePath));
+        }
+
+        private static void HandleSceneMovement(string oldPath, string newPath)
+        {
+            var oldName = Path.GetFileNameWithoutExtension(oldPath);
+            var newName = Path.GetFileNameWithoutExtension(newPath);
+
+            if (oldName != newName)
+                TypedSceneStorage.Delete(oldName);
         }
     }
 }
