@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace IJunior.TypedScenes
@@ -7,7 +6,7 @@ namespace IJunior.TypedScenes
     public class LoadingProcessor : MonoBehaviour
     {
         private static LoadingProcessor _instance;
-        private Action _loadingModelAction;
+        private LoadingSettings _loadingSettings;
 
         public static LoadingProcessor Instance
         {
@@ -20,6 +19,17 @@ namespace IJunior.TypedScenes
             }
         }
 
+        public LoadingSettings LoadingSettings
+        {
+            get
+            {
+                if (_loadingSettings == null)
+                    _loadingSettings = LoadingSettings.Create();
+
+                return _loadingSettings;
+            }
+        }
+
         private static void Initialize()
         {
             _instance = new GameObject("LoadingProcessor").AddComponent<LoadingProcessor>();
@@ -27,24 +37,22 @@ namespace IJunior.TypedScenes
             DontDestroyOnLoad(_instance);
         }
 
-        public void ApplyLoadingModel()
+        public void ReloadScene(bool saveLoadingModel = true)
         {
-            _loadingModelAction?.Invoke();
-            _loadingModelAction = null;
+            if (saveLoadingModel == false)
+                LoadingSettings.Clear();
+            
+            var activeScene = SceneManager.GetActiveScene().name;
+            SceneManager.LoadScene(activeScene);
         }
 
-        public void RegisterLoadingModel<T>(T loadingModel)
+        public AsyncOperation ReloadSceneAsync(bool saveLoadingModel = true)
         {
-            _loadingModelAction = () =>
-            {
-                foreach (var rootObjects in SceneManager.GetActiveScene().GetRootGameObjects())
-                {
-                    foreach (var handler in rootObjects.GetComponentsInChildren<ISceneLoadHandler<T>>())
-                    {
-                        handler.OnSceneLoaded(loadingModel);
-                    }
-                }
-            };
+            if (saveLoadingModel == false)
+                LoadingSettings.Clear();
+            
+            var activeScene = SceneManager.GetActiveScene().name;
+            return SceneManager.LoadSceneAsync(activeScene);
         }
     }
 }
